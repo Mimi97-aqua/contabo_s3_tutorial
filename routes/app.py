@@ -1,0 +1,53 @@
+import os
+
+from utils.utils import generate_presigned_url, check_size_and_type
+
+from flask import Blueprint, jsonify, request
+
+s3_ops = Blueprint("s3_ops", __name__, url_prefix="/api")
+
+
+@s3_ops.route('/', methods=['POST'])
+def upload_file():
+	"""
+	Uploads file to Object Storage
+	"""
+	if not 'file' in request.files:
+		return jsonify({
+			'status': 'error',
+			'message': 'No file part'
+		}), 400
+
+	file = request.files['file']
+	filename = file.filename
+
+	type, content_type, size = check_size_and_type(file)
+
+	if not type:
+		return jsonify({
+			'status': 'error',
+			'message': 'The uploaded file must be a media file.'
+		}), 400
+
+	if not size:
+		return jsonify({
+			'status': 'error',
+			'message': 'File is more than 5MB'
+		}), 400
+
+	file_url = f"{os.environ.get('ENDPOINT_URL')}/{os.environ.get('BUCKET_NAME')}/{filename}"
+	upload_url = generate_presigned_url(method='put_object', key=filename.split('.')[0], content_type=content_type)
+
+	if not upload_url:
+		return jsonify({
+			'satus': 'fail',
+			'message': 'Upload URL fialed to generate'
+		}), 400
+
+	return jsonify({
+		'status': 'success',
+		'message': {
+			'file_url': file_url,
+			'upload_url': upload_url
+		}
+	}), 200
