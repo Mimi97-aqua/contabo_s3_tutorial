@@ -1,14 +1,17 @@
 """
 Utitlity functions for the API
 """
-import os
 import mimetypes
+import os
 
 import boto3
 from botocore.config import Config
 
+ALLOWED_MIMETYPES = ('image/', 'video/', 'audio/')
+MAX_FILE_SIZE = 5 * 1024 * 1024
 
-def generate_presigned_url(method:str, content_type:str, key:str=None):
+
+def generate_presigned_url(method:str, content_type:str, key:str):
     """
     Generates a presigned URL for uploading a file to Object Storage
     @param method: specifies the permission granted to the person accessing the URL
@@ -32,11 +35,10 @@ def generate_presigned_url(method:str, content_type:str, key:str=None):
         config=Config(signature_version='s3v4') # protocol to sign web requests
     )
 
-    """
-    boto3.resource is more high-level and unlike boto3.client, it does not directly have the
-    generate_presigned_url() method. Using meta.client.generate_preseigned_url() drops the
-    resource down into a client in order to be able to 
-    """
+    # boto3.resource is more high-level and unlike boto3.client, it does not directly have the
+    # generate_presigned_url() method. Using meta.client.generate_preseigned_url() drops the
+    # resource down into a client in order to be able to
+
     url = s3.meta.client.generate_presigned_url(
         ClientMethod=method,
         Params={
@@ -57,8 +59,6 @@ def check_size_and_type(file:object, filename:str):
     @param file: The uploaded file
     @param filename: The name of the uploaded file
     """
-    ALLOWED_MIMETYPES = ('image/', 'video/', 'audio/')
-    MAX_FILE_SIZE = 5 * 1024 * 1024
     mime_type, _ = mimetypes.guess_type(filename, strict=True)
 
     file.seek(0, 2)
