@@ -10,7 +10,7 @@ s3_ops = Blueprint("s3_ops", __name__, url_prefix="/api")
 @s3_ops.route('/', methods=['POST'])
 def upload_file():
 	"""
-	Uploads file to Object Storage
+	Generates URL for uploading file to object storage
 	"""
 	if not 'file' in request.files:
 		return jsonify({

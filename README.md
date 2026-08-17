@@ -22,3 +22,15 @@ You can read the medium article using this link:
 #### Option 3: Using Docker
 
 ## API Docs
+Base URL: `localhost:5000/api`
+#### 1. Generate Upload URL `POST /`
+- Generates the URL which the frontend uses for making the upload.
+- This endpoint allows for only uploads of media files (images, videos, and audios) not more than 5MB.
+- When testing on an API client like Postman, your request should have `multipart/form-data` as its body with the parameter of the uploaded file being exactly the string `file`
+
+#### 2. Performing the actual upload `PUT /<upload_url>`
+- Since there is no frontend app to consume this, testing will still be done with an API client to mimic the frontend behaviour.
+- Create a new PUT request and paste the upload URL from the previous request in the URL bar.
+- For the headers, specify `Content-Type` to be the value of the content type from the previous request.
+- In the body, select `application/octet-stream` (binary) and upload the same file you uploaded when making the previous request.
+- Your file will be successfully uploaded to Contabo. **PS:** uploading a file with the same name replaces the existing file on the object storage.
