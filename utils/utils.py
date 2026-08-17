@@ -50,15 +50,16 @@ def generate_presigned_url(method:str, content_type:str, key:str=None):
     return url
 
 
-def check_size_and_type(file:object):
+def check_size_and_type(file:object, filename:str):
     """
     Validates that the uploaded file is a media file (audio, video, image) and checks that
     the maximum allowed file size is 5MB
     @param file: The uploaded file
+    @param filename: The name of the uploaded file
     """
     ALLOWED_MIMETYPES = ('image/', 'video/', 'audio/')
     MAX_FILE_SIZE = 5 * 1024 * 1024
-    mime_type, _ = mimetypes.guess_type(file, strict=True)
+    mime_type, _ = mimetypes.guess_type(filename, strict=True)
 
     file.seek(0, 2)
     file_length = file.tell()

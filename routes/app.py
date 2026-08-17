@@ -20,10 +20,11 @@ def upload_file():
 
 	file = request.files['file']
 	filename = file.filename
+	filename_without_extension = file.name
 
-	type, content_type, size = check_size_and_type(file)
+	file_type, content_type, size = check_size_and_type(file, filename)
 
-	if not type:
+	if not file_type:
 		return jsonify({
 			'status': 'error',
 			'message': 'The uploaded file must be a media file.'
@@ -36,12 +37,12 @@ def upload_file():
 		}), 400
 
 	file_url = f"{os.environ.get('ENDPOINT_URL')}/{os.environ.get('BUCKET_NAME')}/{filename}"
-	upload_url = generate_presigned_url(method='put_object', key=filename.split('.')[0], content_type=content_type)
+	upload_url = generate_presigned_url(method='put_object', key=filename_without_extension, content_type=content_type)
 
 	if not upload_url:
 		return jsonify({
 			'satus': 'fail',
-			'message': 'Upload URL fialed to generate'
+			'message': 'Upload URL failed to generate'
 		}), 400
 
 	return jsonify({

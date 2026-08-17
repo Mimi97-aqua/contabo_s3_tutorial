@@ -11,3 +11,4 @@ local_setup:
 	@echo "Installing dependencies..."
 	@echo "3: Running the application..."
 	@uv run --env-file .env main.py
+	

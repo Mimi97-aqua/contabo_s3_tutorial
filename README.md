@@ -1,10 +1,13 @@
 # contabo_s3_tutorial
 This tutorial walks readers through interacting with Contabo's S3 compatible object storage using a Python backend. It allows for uploading media files, viewing them, and deleting them all from a single API.
 
+You can read the medium article using this link: 
+
 ## Pre-requisites
 - [Python](https://python.org) 3.14.0+
 - [UV package manager](https://docs.astral.sh/uv/getting-started/installation/)
 - [Make](https://askappsec.com/book/chapter-1/installing-make/)(optional)
+- [Docker](https://docs.docker.com/desktop/)(optional)
 
 ## Setup & Installation
 #### Option 1: Using Make
@@ -15,5 +18,7 @@ This tutorial walks readers through interacting with Contabo's S3 compatible obj
 - Create and populate `.env` file
 - Run `uv sync` to install dependencies
 - Run project using `uv run --env-file .env main.py`
+
+### Option 3: Using Docker
 
 ## API Docs
