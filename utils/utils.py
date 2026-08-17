@@ -38,7 +38,7 @@ def generate_presigned_url(method:str, content_type:str, key:str=None):
     resource down into a client in order to be able to 
     """
     url = s3.meta.client.generate_presigned_url(
-        method=method,
+        ClientMethod=method,
         Params={
             'Bucket': os.environ.get('BUCKET_NAME'),
             'Key': key,

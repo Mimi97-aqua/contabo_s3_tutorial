@@ -19,6 +19,6 @@ You can read the medium article using this link:
 - Run `uv sync` to install dependencies
 - Run project using `uv run --env-file .env main.py`
 
-### Option 3: Using Docker
+#### Option 3: Using Docker
 
 ## API Docs
