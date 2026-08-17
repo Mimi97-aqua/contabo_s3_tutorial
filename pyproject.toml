@@ -1,10 +1,16 @@
 [project]
 name = "contabo-s3-tutorial"
 version = "0.1.0"
-description = "Add your description here"
+description = "Interacting with Contabo Object Storage using a Python backend."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "boto3>=1.43.72",
     "flask>=3.1.3",
+]
+
+[dependency-groups]
+dev = [
+    "pylint>=4.0.7",
+    "ruff>=0.16.3",
 ]
