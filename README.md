@@ -22,9 +22,11 @@ You can read the medium article using this link:
 #### Option 3: Using Docker
 
 ## API Docs
-Base URL: `localhost:5000/api`
+- Base URL: `http://localhost:5000/api`
+- **Note:** All presigned URLs generated expire after 1 hour
+
 #### 1. Generate Upload URL: `POST /`
-- Generates the URL which the frontend uses for making the upload.
+- Generates the presigned URL which the frontend uses for making the upload.
 - This endpoint allows for only uploads of media files (images, videos, and audios) not more than 5MB.
 - When testing on an API client like Postman, your request should have `multipart/form-data` as its body with the parameter of the uploaded file being exactly the string `file`
 
@@ -34,3 +36,7 @@ Base URL: `localhost:5000/api`
 - For the headers, specify `Content-Type` to be the value of the content type from the previous request.
 - In the body, select `application/octet-stream` (binary) and upload the same file you uploaded when making the previous request.
 - Your file will be successfully uploaded to Contabo. **PS:** uploading a file with the same name replaces the existing file on the object storage.
+
+#### 3. View File: `GET /`
+- Requires `file_url` and `content_type` as JSON payload. They were both returned in the response of generating the upload URL.
+- Generates presigned URL used for viewing/downloading the content.
