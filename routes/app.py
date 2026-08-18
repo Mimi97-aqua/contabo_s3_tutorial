@@ -57,3 +57,29 @@ def upload_file():
 			'content_type': content_type
 		}
 	}), 200
+
+
+@s3_ops.route('/', methods=['GET'])
+def view_file():
+    """
+    Renders uploaded content using the file URL and content type generated during upload
+    """
+    data = request.json
+    file_url = data.get('file_url')
+    content_type = data.get('content_type')
+	
+    if not file_url or not content_type:
+        return jsonify({
+            "status": "error",
+            "message": "Both 'file_url' and 'content_type' must be provided."
+		}), 400
+
+    filename = file_url.split(f"{os.environ.get('BUCKET_NAME')}/")[-1]
+
+    return jsonify({
+        "status": "success",
+        "message":{
+            'file_url': generate_presigned_url(method='get_object', content_type=content_type, key=filename)
+		}
+	}), 200
+    
