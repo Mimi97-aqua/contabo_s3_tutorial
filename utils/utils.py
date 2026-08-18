@@ -3,6 +3,7 @@ Utitlity functions for the API
 """
 import mimetypes
 import os
+from typing import Optional
 
 import boto3
 from botocore.config import Config
@@ -11,19 +12,20 @@ ALLOWED_MIMETYPES = ('image/', 'video/', 'audio/')
 MAX_FILE_SIZE = 5 * 1024 * 1024
 
 
-def generate_presigned_url(method:str, content_type:str, key:str):
+def generate_presigned_url(method:str, key:str, content_type:Optional[str]=None):
     """
     Generates a presigned URL for uploading a file to Object Storage
     @param method: specifies the permission granted to the person accessing the URL
         - get_object is for download/view permission while
         - put_object is for upload
+        - delete_object is for deleting
     @param key: unique key - can be anything
-    @param content_tye: MIME type of the uploaded file
+    @param content_tye: MIME type of the file
 
     returns: presigned URL for end-user
     """
-    if method in ['put_object', 'get_object']:
-        expiration = 3600  # 1 hour
+    if method in ['put_object', 'get_object', 'delete_object']:
+        expiration = 3600  # URL becomes invalid after 1 hour 
     else:
         raise ValueError("Invalid method. Must be 'put_object' or 'get_object'.")
 
@@ -39,13 +41,18 @@ def generate_presigned_url(method:str, content_type:str, key:str):
     # generate_presigned_url() method. Using meta.client.generate_preseigned_url() drops the
     # resource down into a client in order to be able to
 
+    params = {
+        'Bucket': os.environ.get('BUCKET_NAME'),
+        'Key': key
+    }
+    if method == 'put_object':
+        params['ContentType'] = content_type
+    elif method == 'get_object':
+        params['ResponseContentType'] = content_type
+
     url = s3.meta.client.generate_presigned_url(
         ClientMethod=method,
-        Params={
-            'Bucket': os.environ.get('BUCKET_NAME'),
-            'Key': key,
-            'ContentType': content_type
-        },
+        Params=params,
         ExpiresIn=expiration
     )
 
