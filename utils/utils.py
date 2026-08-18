@@ -7,6 +7,7 @@ from typing import Optional
 
 import boto3
 from botocore.config import Config
+from botocore.exceptions import ClientError
 
 ALLOWED_MIMETYPES = ('image/', 'video/', 'audio/')
 MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -36,6 +37,19 @@ def generate_presigned_url(method:str, key:str, content_type:Optional[str]=None)
         aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
         config=Config(signature_version='s3v4') # protocol to sign web requests
     )
+
+    # check if file exists before allowing fetch or delete
+    if method in ['get_object', 'delete_object']:
+        try:
+            s3.meta.client.head_object(
+                Bucket=os.environ.get('BUCKET_NAME'),
+                Key=key
+            )
+        except ClientError as e:
+            if e.response['Error']['Code'] == '404':
+                raise FileNotFoundError(f"The file '{key}' does not exist in the storage.")
+            else:
+                raise e
 
     # boto3.resource is more high-level and unlike boto3.client, it does not directly have the
     # generate_presigned_url() method. Using meta.client.generate_preseigned_url() drops the
