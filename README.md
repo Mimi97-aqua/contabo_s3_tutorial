@@ -39,4 +39,11 @@ You can read the medium article using this link:
 
 #### 3. View File: `GET /`
 - Requires `file_url` and `content_type` as JSON payload. They were both returned in the response of generating the upload URL.
+- Checks if file exists by fetching its metadata headers and throws an error if it doesn't
 - Generates presigned URL used for viewing/downloading the content.
+- Paste the generated URL in your browser to view/download the content.
+
+#### 4. Deleting File: `DELETE /`
+- Requires `file_url` as JSON payload.
+- Checks if file exists by fetching its metadata headers and throws an error if it doesn't
+- Generates preseigned URL for deleting and rather than sending the URL to the client to hit for deleting, the backend does the deleting directly my making a DELETE request to the generated URL. This is because unlike uploading (which can hog server RAM) and viewing (which can contain private files) which send the presigned URL to the client, deleting is a tiny command (in which no file transfer is happening).
