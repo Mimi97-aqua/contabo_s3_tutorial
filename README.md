@@ -1,7 +1,7 @@
 # contabo_s3_tutorial
-This tutorial walks readers through interacting with Contabo's S3 compatible object storage using a Python backend. It allows for uploading media files, viewing them, and deleting them all from a single API.
+This tutorial walks readers through interacting with Contabo's S3 compatible object storage using a Python backend with the presigned URL architecture. It allows for uploading media files, viewing them, and deleting them all from a single API.
 
-You can read the medium article using this link: 
+You can read the medium article using this [link.](https://medium.com/@ebenyemiriam17/using-contabo-object-storage-with-a-python-backend-presigned-url-architecture-359397c182eb)
 
 ## Pre-requisites
 - [Python](https://python.org) 3.14.0+
