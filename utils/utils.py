@@ -1,19 +1,19 @@
 """
 Utitlity functions for the API
 """
+
 import mimetypes
 import os
-from typing import Optional
 
 import boto3
 from botocore.config import Config
 from botocore.exceptions import ClientError
 
-ALLOWED_MIMETYPES = ('image/', 'video/', 'audio/')
+ALLOWED_MIMETYPES = ("image/", "video/", "audio/")
 MAX_FILE_SIZE = 5 * 1024 * 1024
 
 
-def generate_presigned_url(method:str, key:str, content_type:Optional[str]=None):
+def generate_presigned_url(method: str, key: str, content_type: str | None = None):
     """
     Generates a presigned URL for uploading a file to Object Storage
     @param method: specifies the permission granted to the person accessing the URL
@@ -25,60 +25,60 @@ def generate_presigned_url(method:str, key:str, content_type:Optional[str]=None)
 
     returns: presigned URL for end-user
     """
-    if method in ['put_object', 'get_object', 'delete_object']:
-        expiration = 3600  # URL becomes invalid after 1 hour 
+    if method in ["put_object", "get_object", "delete_object"]:
+        expiration = 3600  # URL becomes invalid after 1 hour
     else:
         raise ValueError("Invalid method. Must be 'put_object' or 'get_object'.")
 
     s3 = boto3.resource(
-        's3', # the servie name - it could be ec2, sqs and so on
-        endpoint_url=os.environ.get('ENDPOINT_URL'), # used for bypassing the standard AWS Cloud for Contabo
-        aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'), # used in combination with with the secret key for login
-        aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
-        config=Config(signature_version='s3v4') # protocol to sign web requests
+        "s3",  # the servie name - it could be ec2, sqs and so on
+        endpoint_url=os.environ.get(
+            "ENDPOINT_URL"
+        ),  # used for bypassing the standard AWS Cloud for Contabo
+        aws_access_key_id=os.environ.get(
+            "AWS_ACCESS_KEY_ID"
+        ),  # used in combination with with the secret key for login
+        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+        config=Config(signature_version="s3v4"),  # protocol to sign web requests
     )
 
     # check if file exists before allowing fetch or delete
-    if method in ['get_object', 'delete_object']:
+    if method in ["get_object", "delete_object"]:
         try:
-            s3.meta.client.head_object(
-                Bucket=os.environ.get('BUCKET_NAME'),
-                Key=key
-            )
+            s3.meta.client.head_object(Bucket=os.environ.get("BUCKET_NAME"), Key=key)
         except ClientError as e:
-            if e.response['Error']['Code'] == '404':
-                raise FileNotFoundError(f"The file '{key}' does not exist in the storage.")
-            else:
-                raise e
+            if e.response["Error"]["Code"] == "404":
+                raise FileNotFoundError(
+                    f"The file '{key}' does not exist in the storage."
+                )
+            print(e)
 
     # boto3.resource is more high-level and unlike boto3.client, it does not directly have the
     # generate_presigned_url() method. Using meta.client.generate_preseigned_url() drops the
     # resource down into a client in order to be able to
 
-    params = {
-        'Bucket': os.environ.get('BUCKET_NAME'),
-        'Key': key
-    }
-    if method == 'put_object':
-        params['ContentType'] = content_type
-    elif method == 'get_object':
-        params['ResponseContentType'] = content_type
+    params = {"Bucket": os.environ.get("BUCKET_NAME"), "Key": key}
+    if method == "put_object":
+        params["ContentType"] = content_type
+    elif method == "get_object":
+        params["ResponseContentType"] = content_type
 
     url = s3.meta.client.generate_presigned_url(
-        ClientMethod=method,
-        Params=params,
-        ExpiresIn=expiration
+        ClientMethod=method, Params=params, ExpiresIn=expiration
     )
 
     return url
 
 
-def check_size_and_type(file:object, filename:str):
+def check_size_and_type(file: object, filename: str):
     """
     Validates that the uploaded file is a media file (audio, video, image) and checks that
     the maximum allowed file size is 5MB
     @param file: The uploaded file
     @param filename: The name of the uploaded file
+
+    returns: MIME Type and boolean values representing if the file type is
+    valid and if file size is within limit
     """
     mime_type, _ = mimetypes.guess_type(filename, strict=True)
 
