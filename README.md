@@ -20,6 +20,8 @@ You can read the medium article using this link:
 - Run project using `uv run --env-file .env main.py`
 
 #### Option 3: Using Docker
+- Run `docker build -t <tag:version> .`
+- Run `docker run -d --env-file .env -p 5000:5000 <tag:version>`
 
 ## API Docs
 - Base URL: `http://localhost:5000/api`
