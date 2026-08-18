@@ -3,6 +3,7 @@ Bluepirint for CRUD operations in S3
 """
 
 import os
+import requests
 
 from flask import Blueprint, jsonify, request
 
@@ -14,7 +15,7 @@ s3_ops = Blueprint("s3_ops", __name__, url_prefix="/api")
 @s3_ops.route('/', methods=['POST'])
 def upload_file():
     """
-	Generates URL for uploading file to object storage
+	Generates presigned URL for uploading file to object storage
 	"""
     if not 'file' in request.files:
         return jsonify({
@@ -63,6 +64,8 @@ def upload_file():
 def view_file():
     """
     Renders uploaded content using the file URL and content type generated during upload
+    
+    returns: a presigned URL for viewing/downloading the content
     """
     data = request.json
     file_url = data.get('file_url')
@@ -74,6 +77,8 @@ def view_file():
             "message": "Both 'file_url' and 'content_type' must be provided."
 		}), 400
 
+	# the file url ends with /bucketname/filenamme.extension e.g /mybucket/image.jpg
+    # so to get the filename, we must split from the bucketname and take the last item
     filename = file_url.split(f"{os.environ.get('BUCKET_NAME')}/")[-1]
 
     return jsonify({
@@ -83,3 +88,31 @@ def view_file():
 		}
 	}), 200
     
+
+@s3_ops.route('/', methods=['DELETE'])
+def delete_file():
+    """
+    Generates preseigned URL for deleting and makes an HTTP DELETE request to
+    remove the specified file from the s3 bucket
+    """
+    file_url = request.json.get('file_url')
+    if not file_url:
+        return jsonify({
+            'status': 'error',
+            'message': "'file_url' required"
+		}), 400
+
+    filename = file_url.split(f"{os.environ.get('BUCKET_NAME')}/")[-1]
+    delete_url = generate_presigned_url(method='delete_object', key=filename)
+    response = requests.delete(delete_url)
+
+    if response.status_code != 204:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to delete file: {response.reason}'
+		}), 400
+
+    return jsonify({
+        'status': 'success',
+        'message': 'File successfully deleted'
+	}), 200
