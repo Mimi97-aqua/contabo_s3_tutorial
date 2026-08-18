@@ -1,0 +1,6 @@
+*
+!routes/
+!main.py
+!utils/
+!pyproject.toml
+!uv.lock
