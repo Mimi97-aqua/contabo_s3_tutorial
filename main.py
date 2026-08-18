@@ -6,7 +6,7 @@ import os
 
 from flask import Flask
 
-from routes.app import s3_ops
+from routes.app import s3_ops, root
 
 
 def create_app():
@@ -16,6 +16,7 @@ def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
     app.register_blueprint(s3_ops)
+    app.register_blueprint(root)
 
     return app
 

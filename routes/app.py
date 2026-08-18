@@ -10,6 +10,12 @@ from flask import Blueprint, jsonify, request
 from utils.utils import check_size_and_type, generate_presigned_url
 
 s3_ops = Blueprint("s3_ops", __name__, url_prefix="/api")
+root = Blueprint('root', __name__)
+
+
+@root.route("/", methods=['GET'])
+def health_check():
+    return jsonify({"status": "Success", "message": "Oh yeah!!! It works!"}), 200
 
 
 @s3_ops.route("/", methods=["POST"])
